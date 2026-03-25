@@ -5,7 +5,7 @@ public class TransactionsUI extends JFrame {
 
     public TransactionsUI() {
         setTitle("Transactions Management");
-        setSize(400, 500);
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -16,30 +16,35 @@ public class TransactionsUI extends JFrame {
         JButton btnInspection = new JButton("Inspection");
         JButton btnBack = new JButton("Back");
 
-        // Open Inspection Management UI
-
-        btnInspection.addActionListener(e -> {
-            new InspectionUI().setVisible(true);
-            dispose();
-        });
+        
+       
 
         // Open Violation Management UI
 
         btnViolation.addActionListener(e -> {
-            new ViolationUI().setVisible(true);
+            new ViolationTransactionUI().setVisible(true);
             dispose();
         });
 
-        // ===== PLACEHOLDERS =====
-
-        btnEstablishment.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Establishment  (not implemented yet)")
+        // ===== PLACEHOLDER =====
+        btnInspection.addActionListener(e -> 
+                JOptionPane.showMessageDialog(this, "Inspection  (not implemented yet)")
         );
 
         btnInspector.addActionListener(e -> {
             new InspectorUI().setVisible(true);
             dispose();
         });
+        // Open Establishment Transaction UI
+        btnEstablishment.addActionListener(e -> {
+            new EstablishmentTransactionUI().setVisible(true);
+            dispose();
+        });
+
+        // ===== PLACEHOLDER =====
+        btnInspector.addActionListener(e ->
+                JOptionPane.showMessageDialog(this, "Inspector  (not implemented yet)")
+        );
 
         btnRequirement.addActionListener(e ->
                 JOptionPane.showMessageDialog(this, "Inspection Requirement  (not implemented yet)")
