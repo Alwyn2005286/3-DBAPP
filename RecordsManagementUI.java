@@ -30,11 +30,12 @@ public class RecordsManagementUI extends JFrame {
             dispose();
         });
 
-        // ===== PLACEHOLDERS =====
-
-        btnEstablishment.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Establishment Management (not implemented yet)")
+        btnEstablishment.addActionListener(e -> {
+            new EstablishmentUI().setVisible(true);
+            dispose()
         );
+
+        // ===== PLACEHOLDERS =====
 
         btnInspector.addActionListener(e ->
                 JOptionPane.showMessageDialog(this, "Inspector Management (not implemented yet)")
