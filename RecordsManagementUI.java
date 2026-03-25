@@ -32,8 +32,8 @@ public class RecordsManagementUI extends JFrame {
 
         btnEstablishment.addActionListener(e -> {
             new EstablishmentUI().setVisible(true);
-            dispose()
-        );
+            dispose();
+        });
 
         // ===== PLACEHOLDERS =====
 
