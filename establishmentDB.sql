@@ -18,7 +18,7 @@ CREATE TABLE inspector_management (
 CREATE TABLE assigned_inspector (
     Assignment_Id INT PRIMARY KEY AUTO_INCREMENT,
     Inspector_Id INT,
-    Full_Name VARCHAR(50)
+    Full_Name VARCHAR(50),
     FOREIGN KEY (Inspector_Id) REFERENCES inspector_management(Inspector_Id)
 );
 
