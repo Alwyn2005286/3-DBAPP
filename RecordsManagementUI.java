@@ -23,6 +23,12 @@ public class RecordsManagementUI extends JFrame {
             dispose();
         });
 
+        // Open Violation UI
+        btnViolation.addActionListener(e -> {
+            new ViolationUI().setVisible(true);
+            dispose();
+        });
+
         // Placeholder buttons
         btnEstablishment.addActionListener(e ->
                 JOptionPane.showMessageDialog(this, "Establishment Management (not implemented yet)")
@@ -34,10 +40,6 @@ public class RecordsManagementUI extends JFrame {
 
         btnRequirement.addActionListener(e ->
                 JOptionPane.showMessageDialog(this, "Inspection Requirement Management (not implemented yet)")
-        );
-
-        btnViolation.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Violation Management (not implemented yet)")
         );
 
         // Back to Main Menu
