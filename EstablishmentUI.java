@@ -1,175 +1,84 @@
-
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.List;
 
-public class EstablishmentUI extends JFrame {
-
-    private JTextField txtId, txtName, txtOwner, txtAddress, txtContact, txtStatus;
+public class EstablishmentUI extends JPanel {
     private JTable table;
-    private DefaultTableModel model;
+    private DefaultTableModel tableModel;
+    private EstablishmentDAO dao;
+    private JTextField idField, nameField;
+    private JComboBox<Integer> ownerIdCombo, cityIdCombo;
 
     public EstablishmentUI() {
-        setTitle("Establishment Management");
-        setSize(800, 400);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        dao = new EstablishmentDAO();
         setLayout(new BorderLayout());
 
-        // ===== FORM PANEL =====
-        JPanel formPanel = new JPanel(new GridLayout(6, 2, 5, 5));
+        JPanel inputPanel = new JPanel(new GridLayout(2, 4, 5, 5));
+        inputPanel.setBorder(BorderFactory.createTitledBorder("Establishment Details"));
 
-        txtId = new JTextField();
-        txtName = new JTextField();
-        txtOwner = new JTextField();
-        txtAddress = new JTextField();
-        txtContact = new JTextField();
-        txtStatus = new JTextField(); // OPEN, CLOSED, SUSPENDED
+        inputPanel.add(new JLabel("Name:"));
+        nameField = new JTextField();
+        inputPanel.add(nameField);
 
-        formPanel.add(new JLabel("ID:"));
-        formPanel.add(txtId);
-        formPanel.add(new JLabel("Name:"));
-        formPanel.add(txtName);
-        formPanel.add(new JLabel("Owner:"));
-        formPanel.add(txtOwner);
-        formPanel.add(new JLabel("Address:"));
-        formPanel.add(txtAddress);
-        formPanel.add(new JLabel("Contact Info:"));
-        formPanel.add(txtContact);
-        formPanel.add(new JLabel("Status:"));
-        formPanel.add(txtStatus);
+        inputPanel.add(new JLabel("Owner ID:"));
+        ownerIdCombo = new JComboBox<>();
+        inputPanel.add(ownerIdCombo);
 
-        add(formPanel, BorderLayout.NORTH);
+        inputPanel.add(new JLabel("City ID:"));
+        cityIdCombo = new JComboBox<>();
+        inputPanel.add(cityIdCombo);
 
-        // ===== TABLE =====
-        model = new DefaultTableModel();
-        table = new JTable(model);
+        add(inputPanel, BorderLayout.NORTH);
 
-        model.addColumn("ID");
-        model.addColumn("Name");
-        model.addColumn("Owner");
-        model.addColumn("Address");
-        model.addColumn("Contact");
-        model.addColumn("Status");
-
+        String[] columnNames = {"Est. ID", "Owner ID", "Name", "City ID"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        table = new JTable(tableModel);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // ===== BUTTON PANEL =====
-        JPanel buttonPanel = new JPanel();
+        JPanel controlPanel = new JPanel();
+        JButton addButton = new JButton("Save");
+        JButton refreshButton = new JButton("Refresh");
+        
+        addButton.addActionListener(e -> save());
+        refreshButton.addActionListener(e -> refreshData());
+        
+        controlPanel.add(addButton);
+        controlPanel.add(refreshButton);
+        add(controlPanel, BorderLayout.SOUTH);
 
-        JButton btnAdd = new JButton("Add");
-        JButton btnUpdate = new JButton("Update");
-        JButton btnDelete = new JButton("Delete");
-        JButton btnRefresh = new JButton("Refresh");
-        JButton btnBack = new JButton("Back");
-
-        buttonPanel.add(btnAdd);
-        buttonPanel.add(btnUpdate);
-        buttonPanel.add(btnDelete);
-        buttonPanel.add(btnRefresh);
-        buttonPanel.add(btnBack);
-
-        add(buttonPanel, BorderLayout.SOUTH);
-
-        // ===== BUTTON ACTIONS =====
-        btnAdd.addActionListener(e -> addEstablishment());
-        btnUpdate.addActionListener(e -> updateEstablishment());
-        btnDelete.addActionListener(e -> deleteEstablishment());
-        btnRefresh.addActionListener(e -> loadTable());
-        btnBack.addActionListener(e -> { this.dispose(); new RecordsManagementUI().setVisible(true); });
-
-        // Load data initially
-        loadTable();
-
-        // Table row click → populate fields
-        table.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                int row = table.getSelectedRow();
-
-                txtId.setText(model.getValueAt(row, 0).toString());
-                txtName.setText(model.getValueAt(row, 1).toString());
-                txtOwner.setText(model.getValueAt(row, 2).toString());
-                txtAddress.setText(model.getValueAt(row, 3).toString());
-                txtContact.setText(model.getValueAt(row, 4).toString());
-                txtStatus.setText(model.getValueAt(row, 5).toString());
-            }
-        });
+        refreshData();
     }
 
-    // ===== CRUD METHODS =====
-    private void loadTable() {
+    private void refreshData() {
+        // Update: Now using getAvailableCityIds() from the DAO
+        cityIdCombo.removeAllItems();
+        for (Integer id : dao.getAvailableCityIds()) cityIdCombo.addItem(id);
+        
+        ownerIdCombo.removeAllItems();
+        for (Integer id : dao.getAvailableOwnerIds()) ownerIdCombo.addItem(id);
+        
+        loadTableData();
+    }
+
+    private void save() {
         try {
-            model.setRowCount(0);
-            List<Establishment> list = EstablishmentDAO.getAllEstablishments();
+            String name = nameField.getText().trim();
+            int ownerId = (Integer) ownerIdCombo.getSelectedItem();
+            int cityId = (Integer) cityIdCombo.getSelectedItem();
 
-            for (Establishment e : list) {
-                model.addRow(new Object[]{
-                        e.getEstablishmentId(),
-                        e.getEstablishmentName(),
-                        e.getOwnerName(),
-                        e.getAddress(),
-                        e.getContactInfo(),
-                        e.getOperatingStatus()
-                });
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+            // Constructor now expects int for cityId
+            Establishment est = new Establishment(0, ownerId, name, cityId);
+            dao.addEstablishment(est);
+            loadTableData();
+        } catch (Exception ex) { ex.printStackTrace(); }
     }
 
-    private void addEstablishment() {
-        try {
-            Establishment e = new Establishment(
-                    0,
-                    txtName.getText(),
-                    txtOwner.getText(),
-                    txtAddress.getText(),
-                    txtContact.getText(),
-                    txtStatus.getText()
-            );
-
-            EstablishmentDAO.addEstablishment(e);
-            loadTable();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
+    private void loadTableData() {
+        tableModel.setRowCount(0);
+        for (Establishment est : dao.getAllEstablishments()) {
+            // Update: Displaying getCityId() instead of getCityName()
+            Object[] row = { est.getEstablishmentId(), est.getOwnerId(), est.getEstablishmentName(), est.getCityId() };
+            tableModel.addRow(row);
         }
-    }
-
-    private void updateEstablishment() {
-        try {
-            Establishment e = new Establishment(
-                    Integer.parseInt(txtId.getText()),
-                    txtName.getText(),
-                    txtOwner.getText(),
-                    txtAddress.getText(),
-                    txtContact.getText(),
-                    txtStatus.getText()
-            );
-
-            EstablishmentDAO.updateEstablishment(e);
-            loadTable();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    private void deleteEstablishment() {
-        try {
-            int id = Integer.parseInt(txtId.getText());
-            EstablishmentDAO.deleteEstablishment(id);
-            loadTable();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    // ===== MAIN =====
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new EstablishmentUI().setVisible(true));
     }
 }

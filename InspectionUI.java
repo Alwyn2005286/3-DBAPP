@@ -1,199 +1,77 @@
+import java.awt.*;
+import java.sql.Date;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.awt.event.*;
-import java.time.LocalDate;
-import java.util.List;
 
-
-public class InspectionUI extends JFrame {
-
-    private JTextField txtId, txtDate, txtScore, txtGrade, txtRemarks, txtEstId, txtAssignId, txtViolationId;
+public class InspectionUI extends JPanel {
     private JTable table;
-    private DefaultTableModel model;
+    private DefaultTableModel tableModel;
+    private InspectionDAO dao;
+    private JTextField dateField, scoreField, remarksField;
+    private JComboBox<Integer> establishmentIdCombo;
+    private JComboBox<String> gradeCombo;
 
     public InspectionUI() {
-        setTitle("Inspection Management");
-        setSize(1000, 700);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        dao = new InspectionDAO();
         setLayout(new BorderLayout());
 
-        // ===== TOP PANEL (FORM) =====
-        JPanel formPanel = new JPanel(new GridLayout(9, 2, 5, 5));
+        JPanel inputPanel = new JPanel(new GridLayout(3, 4, 5, 5));
+        inputPanel.add(new JLabel("Est. ID:"));
+        establishmentIdCombo = new JComboBox<>();
+        inputPanel.add(establishmentIdCombo);
 
-        txtId = new JTextField();
-        txtDate = new JTextField("YYYY-MM-DD");
-        txtScore = new JTextField();
-        txtGrade = new JTextField();
-        txtRemarks = new JTextField();
-        txtEstId = new JTextField();
-        txtAssignId = new JTextField();
-        txtViolationId = new JTextField();
+        inputPanel.add(new JLabel("Date (YYYY-MM-DD):"));
+        dateField = new JTextField();
+        inputPanel.add(dateField);
 
-        formPanel.add(new JLabel("ID:"));
-        formPanel.add(txtId);
+        inputPanel.add(new JLabel("Score:"));
+        scoreField = new JTextField();
+        inputPanel.add(scoreField);
 
-        formPanel.add(new JLabel("Date (YYYY-MM-DD):"));
-        formPanel.add(txtDate);
+        inputPanel.add(new JLabel("Grade:"));
+        gradeCombo = new JComboBox<>(new String[]{"PASS", "FAIL"});
+        inputPanel.add(gradeCombo);
 
-        formPanel.add(new JLabel("Score:"));
-        formPanel.add(txtScore);
+        inputPanel.add(new JLabel("Remarks:"));
+        remarksField = new JTextField();
+        inputPanel.add(remarksField);
 
-        formPanel.add(new JLabel("Grade:"));
-        formPanel.add(txtGrade);
+        add(inputPanel, BorderLayout.NORTH);
 
-        formPanel.add(new JLabel("Remarks:"));
-        formPanel.add(txtRemarks);
-
-        formPanel.add(new JLabel("Establishment ID:"));
-        formPanel.add(txtEstId);
-
-        formPanel.add(new JLabel("Assignment ID:"));
-        formPanel.add(txtAssignId);
-
-        formPanel.add(new JLabel("Violation ID:"));
-        formPanel.add(txtViolationId);
-
-        add(formPanel, BorderLayout.NORTH);
-
-        // ===== TABLE =====
-        model = new DefaultTableModel();
-        table = new JTable(model);
-
-        model.addColumn("ID");
-        model.addColumn("Date");
-        model.addColumn("Score");
-        model.addColumn("Grade");
-        model.addColumn("Remarks");
-
+        tableModel = new DefaultTableModel(new String[]{"ID", "Est. ID", "Date", "Score", "Grade", "Remarks"}, 0);
+        table = new JTable(tableModel);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // ===== BUTTON PANEL =====
-        JPanel buttonPanel = new JPanel();
+        JButton saveBtn = new JButton("Save");
+        saveBtn.addActionListener(e -> save());
+        add(saveBtn, BorderLayout.SOUTH);
 
-        JButton btnAdd = new JButton("Add");
-        JButton btnUpdate = new JButton("Update");
-        JButton btnDelete = new JButton("Delete");
-        JButton btnRefresh = new JButton("Refresh");
-        JButton btnBack = new JButton("Back");
-
-        buttonPanel.add(btnAdd);
-        buttonPanel.add(btnUpdate);
-        buttonPanel.add(btnDelete);
-        buttonPanel.add(btnRefresh);
-        buttonPanel.add(btnBack);
-
-
-        add(buttonPanel, BorderLayout.SOUTH);
-
-        // ===== BUTTON ACTIONS =====
-
-        btnAdd.addActionListener(e -> addInspection());
-        btnUpdate.addActionListener(e -> updateInspection());
-        btnDelete.addActionListener(e -> deleteInspection());
-        btnRefresh.addActionListener(e -> loadTable());
-        btnBack.addActionListener(e -> {this.dispose(); 
-            new TransactionsUI().setVisible(true);
-        });
-
-        // Load data initially
-        loadTable();
-
-        // Table row click → populate fields
-        table.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                int row = table.getSelectedRow();
-
-                txtId.setText(model.getValueAt(row, 0).toString());
-                txtDate.setText(model.getValueAt(row, 1).toString());
-                txtScore.setText(model.getValueAt(row, 2).toString());
-                txtGrade.setText(model.getValueAt(row, 3).toString());
-                txtRemarks.setText(model.getValueAt(row, 4).toString());
-            }
-        });
+        refreshData();
     }
 
-    // ===== LOAD TABLE =====
-    private void loadTable() {
+    private void refreshData() {
+        establishmentIdCombo.removeAllItems();
+        for (Integer id : dao.getAvailableEstablishmentIds()) establishmentIdCombo.addItem(id);
+        loadTableData();
+    }
+
+    private void save() {
         try {
-            model.setRowCount(0);
-            List<Inspection> list = InspectionDAO.getAllInspections();
+            int estId = (Integer) establishmentIdCombo.getSelectedItem();
+            Date d = Date.valueOf(dateField.getText());
+            double s = Double.parseDouble(scoreField.getText());
+            String g = (String) gradeCombo.getSelectedItem();
+            String r = remarksField.getText();
 
-            for (Inspection i : list) {
-                model.addRow(new Object[]{
-                        i.getInspectionId(),
-                        i.getInspectionDate(),
-                        i.getScore(),
-                        i.getGrade(),
-                        i.getRemarks()
-                });
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+            dao.addInspection(new Inspection(0, estId, d, s, g, r));
+            loadTableData();
+        } catch (Exception ex) { ex.printStackTrace(); }
     }
 
-    // ===== ADD =====
-    private void addInspection() {
-        try {
-            Inspection i = new Inspection(
-                    0,
-                    LocalDate.parse(txtDate.getText()),
-                    Float.parseFloat(txtScore.getText()),
-                    txtGrade.getText(),
-                    txtRemarks.getText(),
-                    Integer.parseInt(txtEstId.getText()),
-                    Integer.parseInt(txtAssignId.getText()),
-                    Integer.parseInt(txtViolationId.getText())
-            );
-
-            InspectionDAO.addInspection(i);
-            loadTable();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
+    private void loadTableData() {
+        tableModel.setRowCount(0);
+        for (Inspection i : dao.getAllInspections()) {
+            tableModel.addRow(new Object[]{i.getInspectionId(), i.getEstablishmentId(), i.getInspectionDate(), i.getScore(), i.getGrade(), i.getRemarks()});
         }
-    }
-
-    // ===== UPDATE =====
-    private void updateInspection() {
-        try {
-            Inspection i = new Inspection(
-                    Integer.parseInt(txtId.getText()),
-                    LocalDate.parse(txtDate.getText()),
-                    Float.parseFloat(txtScore.getText()),
-                    txtGrade.getText(),
-                    txtRemarks.getText(),
-                    Integer.parseInt(txtEstId.getText()),
-                    Integer.parseInt(txtAssignId.getText()),
-                    Integer.parseInt(txtViolationId.getText())
-            );
-
-            InspectionDAO.updateInspection(i);
-            loadTable();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    // ===== DELETE =====
-    private void deleteInspection() {
-        try {
-            int id = Integer.parseInt(txtId.getText());
-            InspectionDAO.deleteInspection(id);
-            loadTable();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    // ===== MAIN METHOD =====
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new InspectionUI().setVisible(true);
-        });
     }
 }

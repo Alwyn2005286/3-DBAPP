@@ -1,103 +1,57 @@
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EstablishmentDAO {
-
-    // CREATE
-    public static int addEstablishment(Establishment est) throws SQLException {
-        String query = "INSERT INTO establishment (Establishment_Name, Owner_Name, Address, Contact_Info, Operating_Status) " +
-                       "VALUES (?, ?, ?, ?, ?)";
-
-        Connection conn = DBConnection.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-
-        stmt.setString(1, est.getEstablishmentName());
-        stmt.setString(2, est.getOwnerName());
-        stmt.setString(3, est.getAddress());
-        stmt.setString(4, est.getContactInfo());
-        stmt.setString(5, est.getOperatingStatus());
-
-        stmt.executeUpdate();
-
-        ResultSet rs = stmt.getGeneratedKeys();
-        int generatedId = -1;
-        if (rs.next()) {
-            generatedId = rs.getInt(1);
-        }
-
-        rs.close();
-        stmt.close();
-        conn.close();
-
-        return generatedId;
+    public List<Establishment> getAllEstablishments() {
+        List<Establishment> establishments = new ArrayList<>();
+        // Updated to use city_id per the new SQL file
+        String query = "SELECT establishment_id, owner_id, establishment_name, city_id FROM Establishments";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                establishments.add(new Establishment(
+                    rs.getInt("establishment_id"),
+                    rs.getInt("owner_id"),
+                    rs.getString("establishment_name"),
+                    rs.getInt("city_id") // Changed from String to Int
+                ));
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return establishments;
     }
 
-    // READ ALL
-    public static List<Establishment> getAllEstablishments() throws SQLException {
-        List<Establishment> list = new ArrayList<>();
-        String query = "SELECT * FROM establishment";
-
-        Connection conn = DBConnection.getConnection();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-
-        while (rs.next()) {
-            Establishment est = new Establishment(
-                    rs.getInt("Establishment_Id"),
-                    rs.getString("Establishment_Name"),
-                    rs.getString("Owner_Name"),
-                    rs.getString("Address"),
-                    rs.getString("Contact_Info"),
-                    rs.getString("Operating_Status")
-            );
-            list.add(est);
-        }
-
-        rs.close();
-        stmt.close();
-        conn.close();
-
-        return list;
+    public void addEstablishment(Establishment est) {
+        String query = "INSERT INTO Establishments (owner_id, establishment_name, city_id) VALUES (?, ?, ?)";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, est.getOwnerId());
+            stmt.setString(2, est.getEstablishmentName());
+            stmt.setInt(3, est.getCityId());
+            stmt.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
-    // UPDATE
-    public static boolean updateEstablishment(Establishment est) throws SQLException {
-        String query = "UPDATE establishment SET Establishment_Name = ?, Owner_Name = ?, Address = ?, Contact_Info = ?, Operating_Status = ? " +
-                       "WHERE Establishment_Id = ?";
-
-        Connection conn = DBConnection.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query);
-
-        stmt.setString(1, est.getEstablishmentName());
-        stmt.setString(2, est.getOwnerName());
-        stmt.setString(3, est.getAddress());
-        stmt.setString(4, est.getContactInfo());
-        stmt.setString(5, est.getOperatingStatus());
-        stmt.setInt(6, est.getEstablishmentId());
-
-        int rowsAffected = stmt.executeUpdate();
-
-        stmt.close();
-        conn.close();
-
-        return rowsAffected > 0;
+    public List<Integer> getAvailableCityIds() {
+        List<Integer> ids = new ArrayList<>();
+        String query = "SELECT city_id FROM REF_Cities";
+        try (Connection conn = DataBaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) { ids.add(rs.getInt("city_id")); }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return ids;
     }
 
-    // DELETE
-    public static boolean deleteEstablishment(int id) throws SQLException {
-        String query = "DELETE FROM establishment WHERE Establishment_Id = ?";
-
-        Connection conn = DBConnection.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query);
-        stmt.setInt(1, id);
-
-        int rowsAffected = stmt.executeUpdate();
-
-        stmt.close();
-        conn.close();
-
-        return rowsAffected > 0;
+    public List<Integer> getAvailableOwnerIds() {
+        List<Integer> ids = new ArrayList<>();
+        String query = "SELECT owner_id FROM Establishment_Owners";
+        try (Connection conn = DataBaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) { ids.add(rs.getInt("owner_id")); }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return ids;
     }
 }

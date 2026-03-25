@@ -1,15 +1,15 @@
-public class Inspector {
-    private int inspectorId;
+public class EstablishmentOwner {
+    private int ownerId;
     private String firstName;
     private String lastName;
 
-    public Inspector(int inspectorId, String firstName, String lastName) {
-        this.inspectorId = inspectorId;
+    public EstablishmentOwner(int ownerId, String firstName, String lastName) {
+        this.ownerId = ownerId;
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
-    public int getInspectorId() { return inspectorId; }
+    public int getOwnerId() { return ownerId; }
     public String getFirstName() { return firstName; }
     public String getLastName() { return lastName; }
 }

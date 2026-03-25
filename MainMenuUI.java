@@ -4,39 +4,23 @@ import java.awt.*;
 public class MainMenuUI extends JFrame {
 
     public MainMenuUI() {
-        setTitle("Main Menu");
-        setSize(1000, 700);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setTitle("Establishment Inspection Database System");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Kills the app when closed
+        setLayout(new BorderLayout());
 
-        JButton btnRecords = new JButton("Records Management");
-        JButton btnTransactions = new JButton("Transactions");
-        JButton btnReports = new JButton("Reports");
+        // Create a central panel to hold our main buttons nicely
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        
+        JButton btnDataManagement = new JButton("Open Data Management");
+        btnDataManagement.setPreferredSize(new Dimension(250, 50));
+        btnDataManagement.setFont(new Font("Arial", Font.BOLD, 14));
 
-        // Open Records Management
-        btnRecords.addActionListener(e -> {
-            new RecordsManagementUI().setVisible(true);
-            dispose();
-        });
+        // Launch the unified tabbed window
+        btnDataManagement.addActionListener(e -> new DataManagementUI().setVisible(true));
 
-        // Open Transactions Management
-        btnTransactions.addActionListener(e -> {
-            new TransactionsUI().setVisible(true);
-            dispose();
-        });
-
-        // Open Reports
-        btnReports.addActionListener(e -> {
-            new ReportsUI().setVisible(true);
-            dispose();
-        });
-
-        // ===== LAYOUT =====
-        setLayout(new GridLayout(3, 1)); 
-
-        add(btnRecords);
-        add(btnTransactions);
-        add(btnReports);
+        centerPanel.add(btnDataManagement);
+        add(centerPanel, BorderLayout.CENTER);
     }
 
     public static void main(String[] args) {
