@@ -72,3 +72,30 @@ INSERT INTO inspection_requirements (Requirement_Code, Title, Standard_Fine) VAL
 (16, 'Grease Buildup in Exhaust Systems', 1000),
 (17, 'Failure to Properly Label Allergens', 1000),
 (18, 'Inadequate Training for Employees', 1000);
+
+INSERT INTO inspector_management (Full_Name, District, Active_Status) VALUES
+('Juan Dela Cruz', 'Manila', 'ACTIVE'),
+('Maria Santos', 'Quezon City', 'ACTIVE'),
+('Pedro Reyes', 'Makati', 'ACTIVE');
+
+INSERT INTO assigned_inspector (Inspector_Id, Full_Name) VALUES
+(1, 'Juan Dela Cruz'),
+(2, 'Maria Santos'),
+(3, 'Pedro Reyes');
+
+INSERT INTO establishment (Establishment_Name, Owner_Name, Address, Contact_Info, Operating_Status) VALUES
+('Jollibee Quiapo', 'Tony Tan Caktiong', 'Quiapo, Manila', '09171234567', 'OPEN'),
+('McDonalds España', 'Golden Arches Dev Corp', 'España Blvd, Manila', '09181234567', 'OPEN'),
+('Mang Inasal Cubao', 'Ibrahim Family', 'Cubao, Quezon City', '09191234567', 'OPEN');
+
+INSERT INTO inspection (Inspection_Date, Score, Grade, Remarks, Establishment_Id, Assignment_Id, Violation_Id) VALUES
+('2026-03-10', 85, 'PASS', 'Good compliance', 1, 1, 1),
+('2026-03-12', 60, 'FAIL', 'Multiple violations', 2, 2, 2),
+('2026-03-15', 90, 'PASS', 'Minor issues only', 3, 3, 3),
+('2026-03-18', 55, 'FAIL', 'Critical violations found', 1, 1, 4);
+
+INSERT INTO violations (Requirement_Code, Inspection_ID) VALUES
+(1, 1),
+(2, 2),
+(3, 2),
+(5, 4);
