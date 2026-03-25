@@ -39,7 +39,7 @@ CREATE TABLE inspection (
     Remarks VARCHAR(100),
     Establishment_Id INT,
     Assignment_Id INT,
-    Violation_Id INT
+    Violation_Id INT,
     FOREIGN KEY (Establishment_Id) REFERENCES establishment(Establishment_Id),
     FOREIGN KEY (Assignment_Id) REFERENCES assigned_inspector(Assignment_Id),
     FOREIGN KEY (Violation_Id) REFERENCES violations(Violation_Id)
@@ -48,7 +48,7 @@ CREATE TABLE inspection (
 CREATE TABLE violations (
     Violation_Id INT PRIMARY KEY AUTO_INCREMENT,
     Requirement_Code INT,
-    Inspection_ID INT
+    Inspection_ID INT,
     FOREIGN KEY (Requirement_Code) REFERENCES inspection_requirements(Requirement_Code),
     FOREIGN KEY (Inspection_ID) REFERENCES inspection(Inspection_Id)
 );
