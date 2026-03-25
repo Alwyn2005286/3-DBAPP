@@ -1,5 +1,5 @@
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class MainMenuUI extends JFrame {
 
@@ -11,6 +11,8 @@ public class MainMenuUI extends JFrame {
 
         JButton btnRecords = new JButton("Records Management");
         JButton btnTransactions = new JButton("Transactions");
+        JButton btnInspectors = new JButton("Inspector Management");
+        JButton btnEstablishments = new JButton("Establishment Management");
         JButton btnReports = new JButton("Reports");
 
         // Open Records Management
@@ -25,15 +27,27 @@ public class MainMenuUI extends JFrame {
             dispose();
         });
 
+        // Open Inspector Management
+        btnInspectors.addActionListener(e -> {
+            new InspectorUI().setVisible(true);
+        });
+
+        // Open Establishment Management
+        btnEstablishments.addActionListener(e -> {
+            new EstablishmentUI().setVisible(true);
+        });
+
         // Placeholder: Reports
         btnReports.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Opened Reports");
         });
 
-        setLayout(new GridLayout(3, 1, 10, 10));
+        setLayout(new GridLayout(5, 1, 10, 10));
 
         add(btnRecords);
         add(btnTransactions);
+        add(btnInspectors);
+        add(btnEstablishments);
         add(btnReports);
     }
 

@@ -1,36 +1,41 @@
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 public class ViolationUI extends JFrame {
 
-    private JTextField txtId, txtReqCode, txtInspectionId;
+    private JTextField txtViolationCode, txtReqCode, txtInspectorRemarks;
+    private JComboBox<String> comboRequirementStatus;
     private JTable table;
     private DefaultTableModel model;
 
     public ViolationUI() {
         setTitle("Violation Management");
-        setSize(700, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(700, 500);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // ===== TOP PANEL (FORM) =====
-        JPanel formPanel = new JPanel(new GridLayout(3, 2, 5, 5));
+        JPanel formPanel = new JPanel(new GridLayout(4, 2, 5, 5));
 
-        txtId = new JTextField();
+        txtViolationCode = new JTextField();
         txtReqCode = new JTextField();
-        txtInspectionId = new JTextField();
+        txtInspectorRemarks = new JTextField();
+        comboRequirementStatus = new JComboBox<>(new String[]{"PASS", "FAIL"});
 
-        formPanel.add(new JLabel("Violation ID:"));
-        formPanel.add(txtId);
+        formPanel.add(new JLabel("Violation Code:"));
+        formPanel.add(txtViolationCode);
 
         formPanel.add(new JLabel("Requirement Code:"));
         formPanel.add(txtReqCode);
 
-        formPanel.add(new JLabel("Inspection ID:"));
-        formPanel.add(txtInspectionId);
+        formPanel.add(new JLabel("Inspector Remarks:"));
+        formPanel.add(txtInspectorRemarks);
+
+        formPanel.add(new JLabel("Requirement Status:"));
+        formPanel.add(comboRequirementStatus);
 
         add(formPanel, BorderLayout.NORTH);
 
@@ -38,9 +43,10 @@ public class ViolationUI extends JFrame {
         model = new DefaultTableModel();
         table = new JTable(model);
 
-        model.addColumn("Violation ID");
+        model.addColumn("Violation Code");
         model.addColumn("Requirement Code");
-        model.addColumn("Inspection ID");
+        model.addColumn("Inspector Remarks");
+        model.addColumn("Requirement Status");
 
         add(new JScrollPane(table), BorderLayout.CENTER);
 
@@ -79,9 +85,10 @@ public class ViolationUI extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 int row = table.getSelectedRow();
 
-                txtId.setText(model.getValueAt(row, 0).toString());
+                txtViolationCode.setText(model.getValueAt(row, 0).toString());
                 txtReqCode.setText(model.getValueAt(row, 1).toString());
-                txtInspectionId.setText(model.getValueAt(row, 2).toString());
+                txtInspectorRemarks.setText(model.getValueAt(row, 2).toString());
+                comboRequirementStatus.setSelectedItem(model.getValueAt(row, 3).toString());
             }
         });
     }
@@ -95,14 +102,16 @@ public class ViolationUI extends JFrame {
 
             for (Violation v : list) {
                 model.addRow(new Object[]{
-                        v.getViolationId(),
+                        v.getViolationCode(),
                         v.getRequirementCode(),
-                        v.getInspectionId()
+                        v.getInspectorRemarks(),
+                        v.getRequirementStatus()
                 });
             }
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading violations: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -110,16 +119,22 @@ public class ViolationUI extends JFrame {
     private void addViolation() {
         try {
             Violation v = new Violation(
-                    0,
+                    Integer.parseInt(txtViolationCode.getText()),
                     Integer.parseInt(txtReqCode.getText()),
-                    Integer.parseInt(txtInspectionId.getText())
+                    txtInspectorRemarks.getText(),
+                    (String) comboRequirementStatus.getSelectedItem()
             );
 
-            ViolationDAO.addViolation(v);
-            loadTable();
+            if (ViolationDAO.addViolation(v)) {
+                JOptionPane.showMessageDialog(this, "Violation added successfully!");
+                loadTable();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to add violation.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error adding violation: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -127,28 +142,43 @@ public class ViolationUI extends JFrame {
     private void updateViolation() {
         try {
             Violation v = new Violation(
-                    Integer.parseInt(txtId.getText()),
+                    Integer.parseInt(txtViolationCode.getText()),
                     Integer.parseInt(txtReqCode.getText()),
-                    Integer.parseInt(txtInspectionId.getText())
+                    txtInspectorRemarks.getText(),
+                    (String) comboRequirementStatus.getSelectedItem()
             );
 
-            ViolationDAO.updateViolation(v);
-            loadTable();
+            if (ViolationDAO.updateViolation(v)) {
+                JOptionPane.showMessageDialog(this, "Violation updated successfully!");
+                loadTable();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to update violation.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error updating violation: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     // ===== DELETE =====
     private void deleteViolation() {
         try {
-            int id = Integer.parseInt(txtId.getText());
-            ViolationDAO.deleteViolation(id);
-            loadTable();
+            int id = Integer.parseInt(txtViolationCode.getText());
+            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this violation?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                if (ViolationDAO.deleteViolation(id)) {
+                    JOptionPane.showMessageDialog(this, "Violation deleted successfully!");
+                    loadTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to delete violation.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error deleting violation: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

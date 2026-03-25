@@ -1,23 +1,25 @@
 public class Violation {
 
-    private int violationId;
+    private int violationCode;
     private int requirementCode;
-    private int inspectionId;
+    private String inspectorRemarks;
+    private String requirementStatus;
 
-    public Violation(int violationId, int requirementCode, int inspectionId) {
-        this.violationId = violationId;
+    public Violation(int violationCode, int requirementCode, String inspectorRemarks, String requirementStatus) {
+        this.violationCode = violationCode;
         this.requirementCode = requirementCode;
-        this.inspectionId = inspectionId;
+        this.inspectorRemarks = inspectorRemarks;
+        this.requirementStatus = requirementStatus;
     }
 
     // Getters and Setters
 
-    public int getViolationId() {
-        return violationId;
+    public int getViolationCode() {
+        return violationCode;
     }
 
-    public void setViolationId(int violationId) {
-        this.violationId = violationId;
+    public void setViolationCode(int violationCode) {
+        this.violationCode = violationCode;
     }
 
     public int getRequirementCode() {
@@ -28,11 +30,19 @@ public class Violation {
         this.requirementCode = requirementCode;
     }
 
-    public int getInspectionId() {
-        return inspectionId;
+    public String getInspectorRemarks() {
+        return inspectorRemarks;
     }
 
-    public void setInspectionId(int inspectionId) {
-        this.inspectionId = inspectionId;
+    public void setInspectorRemarks(String inspectorRemarks) {
+        this.inspectorRemarks = inspectorRemarks;
+    }
+
+    public String getRequirementStatus() {
+        return requirementStatus;
+    }
+
+    public void setRequirementStatus(String requirementStatus) {
+        this.requirementStatus = requirementStatus;
     }
 }

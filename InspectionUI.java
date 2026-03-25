@@ -1,58 +1,55 @@
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 public class InspectionUI extends JFrame {
 
-    private JTextField txtId, txtDate, txtScore, txtGrade, txtRemarks, txtEstId, txtAssignId, txtViolationId;
+    private JTextField txtInspectionId, txtViolationCode, txtAssignmentId, txtDate, txtRemarks, txtScore;
+    private JComboBox<String> comboGrade;
     private JTable table;
     private DefaultTableModel model;
 
     public InspectionUI() {
         setTitle("Inspection Management");
-        setSize(900, 500);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(900, 600);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // ===== TOP PANEL (FORM) =====
-        JPanel formPanel = new JPanel(new GridLayout(9, 2, 5, 5));
+        JPanel formPanel = new JPanel(new GridLayout(7, 2, 5, 5));
 
-        txtId = new JTextField();
+        txtInspectionId = new JTextField();
+        txtViolationCode = new JTextField();
+        txtAssignmentId = new JTextField();
         txtDate = new JTextField("YYYY-MM-DD");
-        txtScore = new JTextField();
-        txtGrade = new JTextField();
         txtRemarks = new JTextField();
-        txtEstId = new JTextField();
-        txtAssignId = new JTextField();
-        txtViolationId = new JTextField();
+        txtScore = new JTextField();
+        comboGrade = new JComboBox<>(new String[]{"PASS", "FAIL"});
 
-        formPanel.add(new JLabel("ID:"));
-        formPanel.add(txtId);
+        formPanel.add(new JLabel("Inspection ID:"));
+        formPanel.add(txtInspectionId);
+
+        formPanel.add(new JLabel("Violation Code:"));
+        formPanel.add(txtViolationCode);
+
+        formPanel.add(new JLabel("Assignment ID:"));
+        formPanel.add(txtAssignmentId);
 
         formPanel.add(new JLabel("Date (YYYY-MM-DD):"));
         formPanel.add(txtDate);
+
+        formPanel.add(new JLabel("Remarks:"));
+        formPanel.add(txtRemarks);
 
         formPanel.add(new JLabel("Score:"));
         formPanel.add(txtScore);
 
         formPanel.add(new JLabel("Grade:"));
-        formPanel.add(txtGrade);
-
-        formPanel.add(new JLabel("Remarks:"));
-        formPanel.add(txtRemarks);
-
-        formPanel.add(new JLabel("Establishment ID:"));
-        formPanel.add(txtEstId);
-
-        formPanel.add(new JLabel("Assignment ID:"));
-        formPanel.add(txtAssignId);
-
-        formPanel.add(new JLabel("Violation ID:"));
-        formPanel.add(txtViolationId);
+        formPanel.add(comboGrade);
 
         add(formPanel, BorderLayout.NORTH);
 
@@ -60,11 +57,13 @@ public class InspectionUI extends JFrame {
         model = new DefaultTableModel();
         table = new JTable(model);
 
-        model.addColumn("ID");
+        model.addColumn("Inspection ID");
+        model.addColumn("Violation Code");
+        model.addColumn("Assignment ID");
         model.addColumn("Date");
+        model.addColumn("Remarks");
         model.addColumn("Score");
         model.addColumn("Grade");
-        model.addColumn("Remarks");
 
         add(new JScrollPane(table), BorderLayout.CENTER);
 
@@ -83,16 +82,15 @@ public class InspectionUI extends JFrame {
         buttonPanel.add(btnRefresh);
         buttonPanel.add(btnBack);
 
-
         add(buttonPanel, BorderLayout.SOUTH);
 
         // ===== BUTTON ACTIONS =====
-
         btnAdd.addActionListener(e -> addInspection());
         btnUpdate.addActionListener(e -> updateInspection());
         btnDelete.addActionListener(e -> deleteInspection());
         btnRefresh.addActionListener(e -> loadTable());
-        btnBack.addActionListener(e -> {this.dispose(); 
+        btnBack.addActionListener(e -> {
+            this.dispose();
             new TransactionsUI().setVisible(true);
         });
 
@@ -104,11 +102,13 @@ public class InspectionUI extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 int row = table.getSelectedRow();
 
-                txtId.setText(model.getValueAt(row, 0).toString());
-                txtDate.setText(model.getValueAt(row, 1).toString());
-                txtScore.setText(model.getValueAt(row, 2).toString());
-                txtGrade.setText(model.getValueAt(row, 3).toString());
+                txtInspectionId.setText(model.getValueAt(row, 0).toString());
+                txtViolationCode.setText(model.getValueAt(row, 1).toString());
+                txtAssignmentId.setText(model.getValueAt(row, 2).toString());
+                txtDate.setText(model.getValueAt(row, 3).toString());
                 txtRemarks.setText(model.getValueAt(row, 4).toString());
+                txtScore.setText(model.getValueAt(row, 5).toString());
+                comboGrade.setSelectedItem(model.getValueAt(row, 6).toString());
             }
         });
     }
@@ -122,15 +122,18 @@ public class InspectionUI extends JFrame {
             for (Inspection i : list) {
                 model.addRow(new Object[]{
                         i.getInspectionId(),
+                        i.getViolationCode(),
+                        i.getAssignmentId(),
                         i.getInspectionDate(),
+                        i.getRemarks(),
                         i.getScore(),
-                        i.getGrade(),
-                        i.getRemarks()
+                        i.getGrade()
                 });
             }
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading inspections: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -138,21 +141,25 @@ public class InspectionUI extends JFrame {
     private void addInspection() {
         try {
             Inspection i = new Inspection(
-                    0,
+                    Integer.parseInt(txtInspectionId.getText()),
+                    Integer.parseInt(txtViolationCode.getText()),
+                    Integer.parseInt(txtAssignmentId.getText()),
                     LocalDate.parse(txtDate.getText()),
-                    Float.parseFloat(txtScore.getText()),
-                    txtGrade.getText(),
                     txtRemarks.getText(),
-                    Integer.parseInt(txtEstId.getText()),
-                    Integer.parseInt(txtAssignId.getText()),
-                    Integer.parseInt(txtViolationId.getText())
+                    new BigDecimal(txtScore.getText()),
+                    (String) comboGrade.getSelectedItem()
             );
 
-            InspectionDAO.addInspection(i);
-            loadTable();
+            if (InspectionDAO.addInspection(i)) {
+                JOptionPane.showMessageDialog(this, "Inspection added successfully!");
+                loadTable();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to add inspection.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error adding inspection: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -160,33 +167,45 @@ public class InspectionUI extends JFrame {
     private void updateInspection() {
         try {
             Inspection i = new Inspection(
-                    Integer.parseInt(txtId.getText()),
+                    Integer.parseInt(txtInspectionId.getText()),
+                    Integer.parseInt(txtViolationCode.getText()),
+                    Integer.parseInt(txtAssignmentId.getText()),
                     LocalDate.parse(txtDate.getText()),
-                    Float.parseFloat(txtScore.getText()),
-                    txtGrade.getText(),
                     txtRemarks.getText(),
-                    Integer.parseInt(txtEstId.getText()),
-                    Integer.parseInt(txtAssignId.getText()),
-                    Integer.parseInt(txtViolationId.getText())
+                    new BigDecimal(txtScore.getText()),
+                    (String) comboGrade.getSelectedItem()
             );
 
-            InspectionDAO.updateInspection(i);
-            loadTable();
+            if (InspectionDAO.updateInspection(i)) {
+                JOptionPane.showMessageDialog(this, "Inspection updated successfully!");
+                loadTable();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to update inspection.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error updating inspection: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     // ===== DELETE =====
     private void deleteInspection() {
         try {
-            int id = Integer.parseInt(txtId.getText());
-            InspectionDAO.deleteInspection(id);
-            loadTable();
+            int id = Integer.parseInt(txtInspectionId.getText());
+            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this inspection?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
 
+            if (confirm == JOptionPane.YES_OPTION) {
+                if (InspectionDAO.deleteInspection(id)) {
+                    JOptionPane.showMessageDialog(this, "Inspection deleted successfully!");
+                    loadTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to delete inspection.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error deleting inspection: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

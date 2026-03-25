@@ -1,7 +1,7 @@
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 public class RecordsManagementUI extends JFrame {
 
@@ -32,13 +32,12 @@ public class RecordsManagementUI extends JFrame {
         JTable table = new JTable(model);
 
         model.addColumn("Inspection ID");
+        model.addColumn("Violation Code");
+        model.addColumn("Assignment ID");
         model.addColumn("Date");
+        model.addColumn("Remarks");
         model.addColumn("Score");
         model.addColumn("Grade");
-        model.addColumn("Remarks");
-        model.addColumn("Establishment ID");
-        model.addColumn("Assignment ID");
-        model.addColumn("Violation ID");
 
         try {
             List<Inspection> list = InspectionDAO.getAllInspections();
@@ -46,13 +45,12 @@ public class RecordsManagementUI extends JFrame {
             for (Inspection i : list) {
                 model.addRow(new Object[]{
                         i.getInspectionId(),
-                        i.getInspectionDate(),
-                        i.getScore(),
-                        i.getGrade(),
-                        i.getRemarks(),
-                        i.getEstablishmentId(),
+                        i.getViolationCode(),
                         i.getAssignmentId(),
-                        i.getViolationId()
+                        i.getInspectionDate(),
+                        i.getRemarks(),
+                        i.getScore(),
+                        i.getGrade()
                 });
             }
 
@@ -70,18 +68,20 @@ public class RecordsManagementUI extends JFrame {
         DefaultTableModel model = new DefaultTableModel();
         JTable table = new JTable(model);
 
-        model.addColumn("Violation ID");
+        model.addColumn("Violation Code");
         model.addColumn("Requirement Code");
-        model.addColumn("Inspection ID");
+        model.addColumn("Inspector Remarks");
+        model.addColumn("Requirement Status");
 
         try {
             List<Violation> list = ViolationDAO.getAllViolations();
 
             for (Violation v : list) {
                 model.addRow(new Object[]{
-                        v.getViolationId(),
+                        v.getViolationCode(),
                         v.getRequirementCode(),
-                        v.getInspectionId()
+                        v.getInspectorRemarks(),
+                        v.getRequirementStatus()
                 });
             }
 

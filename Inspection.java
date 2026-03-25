@@ -1,50 +1,44 @@
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class Inspection {
     private int inspectionId;
-    private LocalDate inspectionDate;
-    private float score;
-    private String grade; 
-    private String remarks;
-    private int establishmentId;
+    private int violationCode;
     private int assignmentId;
-    private int violationId;
-    
-    public Inspection(int inspectionId, LocalDate inspectionDate, float score, 
-                     String grade, String remarks, int establishmentId, int assignmentId, int violationId) {
+    private LocalDate inspectionDate;
+    private String remarks;
+    private BigDecimal score;
+    private String grade;
+
+    public Inspection(int inspectionId, int violationCode, int assignmentId, LocalDate inspectionDate, String remarks, BigDecimal score, String grade) {
         this.inspectionId = inspectionId;
+        this.violationCode = violationCode;
+        this.assignmentId = assignmentId;
         this.inspectionDate = inspectionDate;
+        this.remarks = remarks;
         this.score = score;
         this.grade = grade;
-        this.remarks = remarks;
-        this.establishmentId = establishmentId;
-        this.assignmentId = assignmentId;
-        this.violationId = violationId;
     }
-    
+
     // Getters and Setters
     public int getInspectionId() { return inspectionId; }
     public void setInspectionId(int inspectionId) { this.inspectionId = inspectionId; }
-    
-    public LocalDate getInspectionDate() { return inspectionDate; }
-    public void setInspectionDate(LocalDate inspectionDate) { this.inspectionDate = inspectionDate; }
-    
-    public float getScore() { return score; }
-    public void setScore(float score) { this.score = score; }
-    
-    public String getGrade() { return grade; }
-    public void setGrade(String grade) { this.grade = grade; }
-    
-    public String getRemarks() { return remarks; }
-    public void setRemarks(String remarks) { this.remarks = remarks; }
-    
-    public int getEstablishmentId() { return establishmentId; }
-    public void setEstablishmentId(int establishmentId) { this.establishmentId = establishmentId; }
-    
+
+    public int getViolationCode() { return violationCode; }
+    public void setViolationCode(int violationCode) { this.violationCode = violationCode; }
+
     public int getAssignmentId() { return assignmentId; }
     public void setAssignmentId(int assignmentId) { this.assignmentId = assignmentId; }
-    
-    public int getViolationId() { return violationId; }
-    public void setViolationId(int violationId) { this.violationId = violationId; }
-    
+
+    public LocalDate getInspectionDate() { return inspectionDate; }
+    public void setInspectionDate(LocalDate inspectionDate) { this.inspectionDate = inspectionDate; }
+
+    public String getRemarks() { return remarks; }
+    public void setRemarks(String remarks) { this.remarks = remarks; }
+
+    public BigDecimal getScore() { return score; }
+    public void setScore(BigDecimal score) { this.score = score; }
+
+    public String getGrade() { return grade; }
+    public void setGrade(String grade) { this.grade = grade; }
 }

@@ -5,91 +5,96 @@ import java.util.List;
 public class ViolationDAO {
 
     // CREATE
-    public static int addViolation(Violation violation) throws SQLException {
-        String query = "INSERT INTO violations (Requirement_Code, Inspection_ID) VALUES (?, ?)";
+    public static boolean addViolation(Violation violation) throws SQLException {
+        String query = "INSERT INTO Violations (Violation_Code, Requirement_Code, Inspector_Remarks, Requirement_Status) VALUES (?, ?, ?, ?)";
 
-        Connection conn = DBConnection.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-        stmt.setInt(1, violation.getRequirementCode());
-        stmt.setInt(2, violation.getInspectionId());
+            stmt.setInt(1, violation.getViolationCode());
+            stmt.setInt(2, violation.getRequirementCode());
+            stmt.setString(3, violation.getInspectorRemarks());
+            stmt.setString(4, violation.getRequirementStatus());
 
-        stmt.executeUpdate();
-
-        ResultSet rs = stmt.getGeneratedKeys();
-        int generatedId = -1;
-
-        if (rs.next()) {
-            generatedId = rs.getInt(1);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
         }
-
-        rs.close();
-        stmt.close();
-        conn.close();
-
-        return generatedId;
     }
 
     // READ ALL
     public static List<Violation> getAllViolations() throws SQLException {
         List<Violation> violations = new ArrayList<>();
+        String query = "SELECT * FROM Violations ORDER BY Violation_Code DESC";
 
-        String query = "SELECT * FROM violations ORDER BY Violation_Id DESC";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
 
-        Connection conn = DBConnection.getConnection();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-
-        while (rs.next()) {
-            Violation v = new Violation(
-                rs.getInt("Violation_Id"),
-                rs.getInt("Requirement_Code"),
-                rs.getInt("Inspection_ID")
-            );
-
-            violations.add(v);
+            while (rs.next()) {
+                Violation v = new Violation(
+                    rs.getInt("Violation_Code"),
+                    rs.getInt("Requirement_Code"),
+                    rs.getString("Inspector_Remarks"),
+                    rs.getString("Requirement_Status")
+                );
+                violations.add(v);
+            }
         }
-
-        rs.close();
-        stmt.close();
-        conn.close();
-
         return violations;
+    }
+    
+    // READ ONE
+    public static Violation getViolationByCode(int violationCode) throws SQLException {
+        String query = "SELECT * FROM Violations WHERE Violation_Code = ?";
+        Violation violation = null;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setInt(1, violationCode);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    violation = new Violation(
+                        rs.getInt("Violation_Code"),
+                        rs.getInt("Requirement_Code"),
+                        rs.getString("Inspector_Remarks"),
+                        rs.getString("Requirement_Status")
+                    );
+                }
+            }
+        }
+        return violation;
     }
 
     // UPDATE
     public static boolean updateViolation(Violation violation) throws SQLException {
-        String query = "UPDATE violations SET Requirement_Code = ?, Inspection_ID = ? WHERE Violation_Id = ?";
+        String query = "UPDATE Violations SET Requirement_Code = ?, Inspector_Remarks = ?, Requirement_Status = ? WHERE Violation_Code = ?";
 
-        Connection conn = DBConnection.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-        stmt.setInt(1, violation.getRequirementCode());
-        stmt.setInt(2, violation.getInspectionId());
-        stmt.setInt(3, violation.getViolationId());
+            stmt.setInt(1, violation.getRequirementCode());
+            stmt.setString(2, violation.getInspectorRemarks());
+            stmt.setString(3, violation.getRequirementStatus());
+            stmt.setInt(4, violation.getViolationCode());
 
-        int rowsAffected = stmt.executeUpdate();
-
-        stmt.close();
-        conn.close();
-
-        return rowsAffected > 0;
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
     }
 
     // DELETE
-    public static boolean deleteViolation(int violationId) throws SQLException {
-        String query = "DELETE FROM violations WHERE Violation_Id = ?";
+    public static boolean deleteViolation(int violationCode) throws SQLException {
+        String query = "DELETE FROM Violations WHERE Violation_Code = ?";
 
-        Connection conn = DBConnection.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-        stmt.setInt(1, violationId);
+            stmt.setInt(1, violationCode);
 
-        int rowsAffected = stmt.executeUpdate();
-
-        stmt.close();
-        conn.close();
-
-        return rowsAffected > 0;
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
     }
 }

@@ -1,102 +1,108 @@
--- CREATE DATABASE IF NOT EXISTS establishmentDB;
-USE establishmentDB;
+-- Drop existing tables if they exist
+DROP TABLE IF EXISTS Violations, Inspections, Assigned_Inspectors, Establishments, Establishment_Owners, REF_Cities, Inspectors, REF_Inspection_Requirements;
 
+-- Create Tables based on the provided UML Diagram
 
-CREATE TABLE inspection_requirements (
-    Requirement_Code INT PRIMARY KEY,
-    Title VARCHAR(100),
-    Standard_Fine INT
+CREATE TABLE REF_Cities (
+    City_name VARCHAR(45) PRIMARY KEY
 );
 
-CREATE TABLE inspector_management (
-    Inspector_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Full_Name VARCHAR(50),
-    District VARCHAR(50),
-    Active_Status ENUM('ACTIVE','INACTIVE') NOT NULL
+CREATE TABLE Establishment_Owners (
+    Owner_ID INT(3) PRIMARY KEY,
+    First_Name VARCHAR(50),
+    Last_Name VARCHAR(50)
 );
 
-CREATE TABLE assigned_inspector (
-    Assignment_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Inspector_Id INT,
-    Full_Name VARCHAR(50)
+CREATE TABLE Establishments (
+    Establishment_ID INT(5) PRIMARY KEY,
+    Owner_ID INT(3),
+    Establishment_Name VARCHAR(45),
+    City_name VARCHAR(45),
+    FOREIGN KEY (Owner_ID) REFERENCES Establishment_Owners(Owner_ID),
+    FOREIGN KEY (City_name) REFERENCES REF_Cities(City_name)
 );
 
-CREATE TABLE establishment (
-   Establishment_Id INT PRIMARY KEY AUTO_INCREMENT,
-   Establishment_Name VARCHAR(50),
-   Owner_Name VARCHAR(50),
-   Address VARCHAR(100),
-   Contact_Info VARCHAR(15),
-   Operating_Status ENUM('OPEN','CLOSED','SUSPENDED')
+CREATE TABLE Inspectors (
+    Inspector_ID INT(3) PRIMARY KEY,
+    First_Name VARCHAR(50),
+    Last_Name VARCHAR(50)
 );
 
-CREATE TABLE inspection (
-    Inspection_Id INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE Assigned_Inspectors (
+    Assignment_ID INT(5) PRIMARY KEY,
+    Inspector_ID INT(3),
+    Establishment_ID INT(5),
+    FOREIGN KEY (Inspector_ID) REFERENCES Inspectors(Inspector_ID),
+    FOREIGN KEY (Establishment_ID) REFERENCES Establishments(Establishment_ID)
+);
+
+CREATE TABLE REF_Inspection_Requirements (
+    Requirement_Code INT(2) PRIMARY KEY,
+    Title VARCHAR(50),
+    Standard_Fine DECIMAL(7,2),
+    Description VARCHAR(100),
+    Weight INT(3)
+);
+
+CREATE TABLE Violations (
+    Violation_Code INT(5) PRIMARY KEY,
+    Requirement_Code INT(2),
+    Inspector_Remarks VARCHAR(100),
+    Requirement_Status ENUM('PASS', 'FAIL'),
+    FOREIGN KEY (Requirement_Code) REFERENCES REF_Inspection_Requirements(Requirement_Code)
+);
+
+CREATE TABLE Inspections (
+    Inspection_ID INT(5) PRIMARY KEY,
+    Violation_Code INT(5),
+    Assignment_ID INT(10),
     Inspection_Date DATE,
-    Score FLOAT,
-    Grade ENUM('PASS','FAIL'),
-    Remarks VARCHAR(100),
-    Establishment_Id INT,
-    Assignment_Id INT,
-    Violation_Id INT
+    Remarks VARCHAR(50),
+    Score DECIMAL(5,2),
+    Grade ENUM('PASS', 'FAIL'),
+    FOREIGN KEY (Violation_Code) REFERENCES Violations(Violation_Code)
 );
 
-CREATE TABLE violations (
-    Violation_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Requirement_Code INT,
-    Inspection_ID INT
-);
+-- Sample Data Insertion
 
+INSERT INTO REF_Cities (City_name) VALUES
+('Manila'),
+('Quezon City'),
+('Makati');
 
--- Inspection Requirements
-INSERT INTO inspection_requirements (Requirement_Code, Title, Standard_Fine) VALUES
-(1, 'Cross-Contamination', 1000),
-(2, 'Bare-Hand Contact with Ready-to-Eat Food', 1000),
-(3, 'Improper Cooking Temperatures', 1000),
-(4, 'Failure to Rapidly Cool or Reheat Foods', 1000),
-(5, 'Poor Handwashing Practices', 1000),
-(6, 'Improper Food Storage Temperatures', 1000),
-(7, 'Pest Infestation', 1000),
-(8, 'Expired Food Items', 1000),
-(9, 'Dirty Kitchen Equipment', 1000),
-(10, 'Improper Dishwashing Techniques', 1000),
-(11, 'Cluttered or Dirty Floors', 1000),
-(12, 'Inadequate Food Protection', 1000),
-(13, 'Improper Employee Hygiene', 1000),
-(14, 'Unapproved Food Sources', 1000),
-(15, 'Unclean Restrooms', 1000),
-(16, 'Grease Buildup in Exhaust Systems', 1000),
-(17, 'Failure to Properly Label Allergens', 1000),
-(18, 'Inadequate Training for Employees', 1000);
+INSERT INTO Establishment_Owners (Owner_ID, First_Name, Last_Name) VALUES
+(1, 'Tony', 'Tan Caktiong'),
+(2, 'George', 'Yang'),
+(3, 'Edgar', 'Sia');
 
--- Inspectors
-INSERT INTO inspector_management (Full_Name, District, Active_Status) VALUES
-('Juan Dela Cruz', 'Manila', 'ACTIVE'),
-('Maria Santos', 'Quezon City', 'ACTIVE'),
-('Pedro Reyes', 'Makati', 'ACTIVE');
+INSERT INTO Establishments (Establishment_ID, Owner_ID, Establishment_Name, City_name) VALUES
+(1, 1, 'Jollibee', 'Manila'),
+(2, 2, 'McDonald''s', 'Quezon City'),
+(3, 3, 'Mang Inasal', 'Makati');
 
--- Assigned Inspectors
-INSERT INTO assigned_inspector (Inspector_Id, Full_Name) VALUES
-(1, 'Juan Dela Cruz'),
-(2, 'Maria Santos'),
-(3, 'Pedro Reyes');
+INSERT INTO Inspectors (Inspector_ID, First_Name, Last_Name) VALUES
+(1, 'Juan', 'Dela Cruz'),
+(2, 'Maria', 'Santos'),
+(3, 'Pedro', 'Reyes');
 
--- Establishments
-INSERT INTO establishment (Establishment_Name, Owner_Name, Address, Contact_Info, Operating_Status) VALUES
-('Jollibee Quiapo', 'Tony Tan Caktiong', 'Quiapo, Manila', '09171234567', 'OPEN'),
-('McDonalds España', 'Golden Arches Dev Corp', 'España Blvd, Manila', '09181234567', 'OPEN'),
-('Mang Inasal Cubao', 'Ibrahim Family', 'Cubao, Quezon City', '09191234567', 'OPEN');
+INSERT INTO Assigned_Inspectors (Assignment_ID, Inspector_ID, Establishment_ID) VALUES
+(1, 1, 1),
+(2, 2, 2),
+(3, 3, 3);
 
--- Violations 
-INSERT INTO violations (Requirement_Code, Inspection_ID) VALUES
-(1, 1),
-(2, 2),
-(3, 2),
-(5, 4);
+INSERT INTO REF_Inspection_Requirements (Requirement_Code, Title, Standard_Fine, Description, Weight) VALUES
+(1, 'Food Safety', 500.00, 'Ensure all food is handled properly.', 10),
+(2, 'Cleanliness', 300.00, 'Maintain a clean environment.', 8),
+(3, 'Pest Control', 1000.00, 'No pests allowed.', 12);
 
--- Inspections
-INSERT INTO inspection (Inspection_Date, Score, Grade, Remarks, Establishment_Id, Assignment_Id, Violation_Id) VALUES
-('2026-03-10', 85, 'PASS', 'Good compliance', 1, 1, 1),
-('2026-03-12', 60, 'FAIL', 'Multiple violations', 2, 2, 2),
+INSERT INTO Violations (Violation_Code, Requirement_Code, Inspector_Remarks, Requirement_Status) VALUES
+(1, 2, 'Floors are dirty.', 'FAIL'),
+(2, 1, 'Food not stored at correct temperature.', 'FAIL'),
+(3, 3, 'Evidence of rodents found.', 'FAIL');
+
+INSERT INTO Inspections (Inspection_ID, Violation_Code, Assignment_ID, Inspection_Date, Remarks, Score, Grade) VALUES
+(1, 1, 1, '2024-01-15', 'Needs improvement.', 75.5, 'FAIL'),
+(2, 2, 2, '2024-01-16', 'Critical violation.', 60.0, 'FAIL'),
+(3, 3, 3, '2024-01-17', 'Serious health risk.', 45.0, 'FAIL');
 ('2026-03-15', 90, 'PASS', 'Minor issues only', 3, 3, 3),
 ('2026-03-18', 55, 'FAIL', 'Critical violations found', 1, 1, 4);
