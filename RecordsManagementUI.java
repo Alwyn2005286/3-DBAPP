@@ -5,7 +5,7 @@ public class RecordsManagementUI extends JFrame {
 
     public RecordsManagementUI() {
         setTitle("Records Management");
-        setSize(400, 500);
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 

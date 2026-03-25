@@ -5,7 +5,7 @@ public class MainMenuUI extends JFrame {
 
     public MainMenuUI() {
         setTitle("Main Menu");
-        setSize(400, 300);
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -19,9 +19,10 @@ public class MainMenuUI extends JFrame {
             dispose();
         });
 
-        // placeholder: Transactions
+        // Open Transactions Management
         btnTransactions.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Opened Transactions");
+            new TransactionsUI().setVisible(true);
+            dispose();
         });
 
         // Placeholder: Reports

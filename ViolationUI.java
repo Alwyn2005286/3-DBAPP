@@ -12,7 +12,7 @@ public class ViolationUI extends JFrame {
 
     public ViolationUI() {
         setTitle("Violation Management");
-        setSize(700, 400);
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 

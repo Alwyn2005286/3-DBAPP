@@ -14,7 +14,7 @@ public class InspectionUI extends JFrame {
 
     public InspectionUI() {
         setTitle("Inspection Management");
-        setSize(900, 500);
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
