@@ -36,9 +36,10 @@ public class TransactionsUI extends JFrame {
                 JOptionPane.showMessageDialog(this, "Establishment  (not implemented yet)")
         );
 
-        btnInspector.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Inspector  (not implemented yet)")
-        );
+        btnInspector.addActionListener(e -> {
+            new InspectorUI().setVisible(true);
+            dispose();
+        });
 
         btnRequirement.addActionListener(e ->
                 JOptionPane.showMessageDialog(this, "Inspection Requirement  (not implemented yet)")
