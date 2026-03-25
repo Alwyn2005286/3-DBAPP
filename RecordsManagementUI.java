@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 
-
 public class RecordsManagementUI extends JFrame {
 
     public RecordsManagementUI() {
@@ -17,19 +16,22 @@ public class RecordsManagementUI extends JFrame {
         JButton btnInspection = new JButton("Inspection");
         JButton btnBack = new JButton("Back");
 
-        // Open Inspection UI
+        // Open Inspection Management UI
+
         btnInspection.addActionListener(e -> {
             new InspectionUI().setVisible(true);
             dispose();
         });
 
-        // Open Violation UI
+        // Open Violation Management UI
+
         btnViolation.addActionListener(e -> {
             new ViolationUI().setVisible(true);
             dispose();
         });
 
-        // Placeholder buttons
+        // ===== PLACEHOLDERS =====
+
         btnEstablishment.addActionListener(e ->
                 JOptionPane.showMessageDialog(this, "Establishment Management (not implemented yet)")
         );
@@ -42,12 +44,14 @@ public class RecordsManagementUI extends JFrame {
                 JOptionPane.showMessageDialog(this, "Inspection Requirement Management (not implemented yet)")
         );
 
-        // Back to Main Menu
+        // ===== BACK =====
+
         btnBack.addActionListener(e -> {
             new MainMenuUI().setVisible(true);
             dispose();
         });
 
+        // ===== LAYOUT =====
         setLayout(new GridLayout(6, 1, 10, 10));
 
         add(btnEstablishment);

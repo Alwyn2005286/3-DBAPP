@@ -4,18 +4,13 @@ public class Violation {
     private int requirementCode;
     private int inspectionId;
 
-    public Violation() {}
-
-    public Violation(int requirementCode, int inspectionId) {
-        this.requirementCode = requirementCode;
-        this.inspectionId = inspectionId;
-    }
-
     public Violation(int violationId, int requirementCode, int inspectionId) {
         this.violationId = violationId;
         this.requirementCode = requirementCode;
         this.inspectionId = inspectionId;
     }
+
+    // Getters and Setters
 
     public int getViolationId() {
         return violationId;

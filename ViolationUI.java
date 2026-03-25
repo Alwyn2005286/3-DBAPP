@@ -10,15 +10,13 @@ public class ViolationUI extends JFrame {
     private JTable table;
     private DefaultTableModel model;
 
-    private ViolationDAO dao = new ViolationDAO();
-
     public ViolationUI() {
         setTitle("Violation Management");
         setSize(700, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // ===== FORM =====
+        // ===== TOP PANEL (FORM) =====
         JPanel formPanel = new JPanel(new GridLayout(3, 2, 5, 5));
 
         txtId = new JTextField();
@@ -46,7 +44,7 @@ public class ViolationUI extends JFrame {
 
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // ===== BUTTONS =====
+        // ===== BUTTON PANEL =====
         JPanel buttonPanel = new JPanel();
 
         JButton btnAdd = new JButton("Add");
@@ -63,7 +61,7 @@ public class ViolationUI extends JFrame {
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // ===== ACTIONS =====
+        // ===== BUTTON ACTIONS =====
         btnAdd.addActionListener(e -> addViolation());
         btnUpdate.addActionListener(e -> updateViolation());
         btnDelete.addActionListener(e -> deleteViolation());
@@ -73,7 +71,10 @@ public class ViolationUI extends JFrame {
             new RecordsManagementUI().setVisible(true);
         });
 
-        // Table click
+        // Load data initially
+        loadTable();
+
+        // Table row click → populate fields
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int row = table.getSelectedRow();
@@ -83,15 +84,14 @@ public class ViolationUI extends JFrame {
                 txtInspectionId.setText(model.getValueAt(row, 2).toString());
             }
         });
-
-        loadTable();
     }
 
+    // ===== LOAD TABLE =====
     private void loadTable() {
         try {
             model.setRowCount(0);
 
-            List<Violation> list = dao.getAllViolations();
+            List<Violation> list = ViolationDAO.getAllViolations();
 
             for (Violation v : list) {
                 model.addRow(new Object[]{
@@ -106,14 +106,16 @@ public class ViolationUI extends JFrame {
         }
     }
 
+    // ===== ADD =====
     private void addViolation() {
         try {
             Violation v = new Violation(
+                    0,
                     Integer.parseInt(txtReqCode.getText()),
                     Integer.parseInt(txtInspectionId.getText())
             );
 
-            dao.addViolation(v);
+            ViolationDAO.addViolation(v);
             loadTable();
 
         } catch (Exception ex) {
@@ -121,6 +123,7 @@ public class ViolationUI extends JFrame {
         }
     }
 
+    // ===== UPDATE =====
     private void updateViolation() {
         try {
             Violation v = new Violation(
@@ -129,7 +132,7 @@ public class ViolationUI extends JFrame {
                     Integer.parseInt(txtInspectionId.getText())
             );
 
-            dao.updateViolation(v);
+            ViolationDAO.updateViolation(v);
             loadTable();
 
         } catch (Exception ex) {
@@ -137,10 +140,11 @@ public class ViolationUI extends JFrame {
         }
     }
 
+    // ===== DELETE =====
     private void deleteViolation() {
         try {
             int id = Integer.parseInt(txtId.getText());
-            dao.deleteViolation(id);
+            ViolationDAO.deleteViolation(id);
             loadTable();
 
         } catch (Exception ex) {
@@ -148,6 +152,7 @@ public class ViolationUI extends JFrame {
         }
     }
 
+    // ===== MAIN METHOD =====
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new ViolationUI().setVisible(true);
