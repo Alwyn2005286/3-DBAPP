@@ -30,11 +30,12 @@ CREATE TABLE `Inspectors` (
 );
 
 CREATE TABLE `REF_Inspection_Requirements` (
-    `Requirement_Code` INT PRIMARY KEY,
-    `Title` VARCHAR(50),
-    `Standard_Fine` DECIMAL(7,2),
-    `Description` VARCHAR(100),
-    `Weight` INT
+  `Requirement_Code` INT AUTO_INCREMENT,
+  `Title` VARCHAR(50),
+  `Standard_Fine` DECIMAL(7,2),
+  `Description` VARCHAR(100),
+  `Weight` INT,
+  PRIMARY KEY (`Requirement_Code`)
 );
 
 CREATE TABLE `Inspections` (
