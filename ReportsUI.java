@@ -1,5 +1,5 @@
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class ReportsUI extends JFrame {
 
@@ -37,8 +37,8 @@ public class ReportsUI extends JFrame {
         });
 
         btnComplianceTrendReport.addActionListener(e -> {
-            
-            JOptionPane.showMessageDialog(this, "Compliance Trend Report (not implemented yet)");
+            new ComplianceTrendReportUI().setVisible(true);
+            dispose();
         });
 
         
