@@ -45,8 +45,15 @@ public class EstablishmentComplianceTrendReportUI extends JFrame {
                 int selectedYear = (Integer) yearComboBox.getSelectedItem();
                 List<String[]> data = dao.getComplianceTrend(selectedYear);
                 tableModel.setRowCount(0); // Clear existing data
-                for (String[] row : data) {
-                    tableModel.addRow(row);
+                if (data.isEmpty()) {
+                    JOptionPane.showMessageDialog(EstablishmentComplianceTrendReportUI.this,
+                            "No data found for the selected year.",
+                            "No Data",
+                            JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    for (String[] row : data) {
+                        tableModel.addRow(row);
+                    }
                 }
             }
         });
